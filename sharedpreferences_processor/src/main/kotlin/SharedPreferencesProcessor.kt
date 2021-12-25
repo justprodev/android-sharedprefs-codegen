@@ -1,11 +1,10 @@
 import com.google.devtools.ksp.processing.*
-import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSVisitorVoid
+import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
+import com.justprodev.annotations.Clear
 import com.justprodev.annotations.Default
 import java.io.OutputStream
+import kotlin.reflect.KClass
 
 fun OutputStream.append(str: String) {
     this.write(str.toByteArray())
@@ -41,25 +40,30 @@ class SharedPreferencesProcessor(
 
             // collect fields
             val fields = ArrayList<Field>()
+            var clearMethod: String? = null
             for (declaration in classDeclaration.declarations) {
                 if(declaration is KSPropertyDeclaration) {
                     // field annotated with @Default("value")
-                    val default: Any? = declaration.annotations
-                        .find { it.shortName.asString() == Default::class.simpleName }
+                    val default: Any? = declaration.getAnnotation(Default::class)
                         ?.arguments?.getOrNull(0)?.value
 
-                    fields.add(Field(
-                        declaration.simpleName.asString(),
-                        declaration.type.resolve().declaration.simpleName.asString(),
-                        default
-                    ))
+                    fields.add(
+                        Field(
+                            declaration.simpleName.asString(),
+                            declaration.type.resolve().declaration.simpleName.asString(),
+                            default
+                        )
+                    )
+                } else if(declaration is KSFunctionDeclaration && declaration.getAnnotation(Clear::class)!=null) {
+                    clearMethod = declaration.simpleName.asString()
                 } else {
                     logger.error("$declaration not allowed in the interface ${packageName}.$className")
                 }
             }
 
             // generate Impl
-            file.append(Interface(classImplName, className, packageName, fields).generateImplementation())
+            val `interface` = Interface(classImplName, className, packageName, fields, clearMethod)
+            file.append(`interface`.generateImplementation())
 
             file.close()
         }
@@ -73,3 +77,5 @@ class SharedPreferencesProcessorProvider : SymbolProcessorProvider {
         return SharedPreferencesProcessor(environment.codeGenerator, environment.logger)
     }
 }
+
+fun KSDeclaration.getAnnotation(name: KClass<*>) = annotations.find { it.shortName.asString() == name.simpleName }

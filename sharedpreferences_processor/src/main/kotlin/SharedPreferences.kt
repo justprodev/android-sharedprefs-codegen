@@ -27,3 +27,9 @@ annotation class SharedPreferences {}
  * @param value value in String representation, will be converted to target type
  */
 annotation class Default(val value: String) {}
+
+
+/**
+ * Add an annotation to the function in the [SharedPreferences] interface that should clear all fields.
+ */
+annotation class Clear() {}
