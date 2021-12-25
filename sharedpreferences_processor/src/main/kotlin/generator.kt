@@ -21,7 +21,7 @@ fun Interface.generateImplementation(): String {
 
     if(clearMethod!=null) {
         sb.append("\n")
-        sb.append("\tfun $clearMethod() = prefs.edit().clear().apply()\n\n")
+        sb.append("\toverride fun $clearMethod() = prefs.edit().clear().apply()\n\n")
     }
 
     sb.append("}")
