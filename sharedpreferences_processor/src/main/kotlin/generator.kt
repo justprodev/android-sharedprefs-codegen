@@ -19,6 +19,11 @@ fun Interface.generateImplementation(): String {
         sb.append("\t\tset(value) = if(value == null) prefs.edit().remove($prefName).apply() else prefs.edit().put${it.type}($prefName, value).apply()\n")
     }
 
+    if(clearMethod!=null) {
+        sb.append("\n")
+        sb.append("\toverride fun $clearMethod() = prefs.edit().clear().apply()\n\n")
+    }
+
     sb.append("}")
 
     return sb.toString()
@@ -28,7 +33,8 @@ class Interface(
     val classImplName: String,
     val className: String,
     val packageName: String,
-    val fields: List<Field>
+    val fields: List<Field>,
+    val clearMethod: String? = null
 )
 
 class Field(
