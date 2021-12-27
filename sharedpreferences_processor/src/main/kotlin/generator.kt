@@ -19,7 +19,7 @@ fun Interface.generateImplementation(): String {
         val prefName = "\"${it.name}\""
         val type = it.type + (if(it.nullable) "?" else "")
 
-        if(it.nullable && it.value==null) throw IllegalArgumentException("${it.name} should be nullable because hasn't @Default")
+        if(!it.nullable && it.value==null) throw IllegalArgumentException("${it.name} should be nullable because hasn't @Default")
 
         sb.append("\toverride var ${it.name}: $type?\n")
         sb.append("\t\tget() = prefs.get${it.type}($prefName, ${it.default})\n")
