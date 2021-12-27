@@ -21,8 +21,8 @@ interface ExamplePreferences {
 
 - You can access generated class like "ExamplePreferencesImpl(context)" just after build.
 - You can use String/Int/Float/Boolean fields.
-- All fields should be nullable because of next point.
-- To remove a value from shared preferences: "field=null"
+- By default, all fields should be nullable. (@Default fields can be non-nullable)
+- To remove a value from shared preferences: "field=null" (Exception: @Default fields can be non-nullable)
 - To define default value, use Default field annotation
 - A preference will be named as your interface ("ExamplePreferences"), and sharedpreferences fields will be named as interface fields
 
