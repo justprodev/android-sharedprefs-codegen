@@ -51,7 +51,8 @@ class SharedPreferencesProcessor(
                         Field(
                             declaration.simpleName.asString(),
                             declaration.type.resolve().declaration.simpleName.asString(),
-                            default
+                            default,
+                            declaration.type.resolve().isMarkedNullable
                         )
                     )
                 } else if(declaration is KSFunctionDeclaration && declaration.getAnnotation(Clear::class)!=null) {
