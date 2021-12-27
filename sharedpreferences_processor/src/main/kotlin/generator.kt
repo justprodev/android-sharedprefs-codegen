@@ -1,3 +1,6 @@
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
+
 /**
  * @author alex@justprodev.com on 24.12.2021.
  */
@@ -14,9 +17,18 @@ fun Interface.generateImplementation(): String {
 
     fields.forEach {
         val prefName = "\"${it.name}\""
-        sb.append("\toverride var ${it.name}: ${it.type}?\n")
-        sb.append("\t\tget() = prefs.get${it.type}($prefName, ${it.default})\n")
-        sb.append("\t\tset(value) = if(value == null) prefs.edit().remove($prefName).apply() else prefs.edit().put${it.type}($prefName, value).apply()\n")
+
+        if(it.nullable) {
+            sb.append("\toverride var ${it.name}: ${it.type}?\n")
+            sb.append("\t\tget() = prefs.get${it.type}($prefName, ${it.default})\n")
+            sb.append("\t\tset(value) = if(value == null) prefs.edit().remove($prefName).apply() else prefs.edit().put${it.type}($prefName, value).apply()\n")
+        } else {
+            if(it.value==null) throw IllegalArgumentException("${it.name} should be nullable because hasn't @Default")
+
+            sb.append("\toverride var ${it.name}: ${it.type}\n")
+            sb.append("\t\tget() = prefs.get${it.type}($prefName, ${it.default})!!\n")
+            sb.append("\t\tset(value) = prefs.edit().put${it.type}($prefName, value).apply()\n")
+        }
     }
 
     if(clearMethod!=null) {
@@ -40,7 +52,8 @@ class Interface(
 class Field(
     val name: String,
     val type: String,
-    val value: Any? = null
+    val value: Any? = null,
+    val nullable: Boolean = true
 ) {
     val default: String
         get() =  if(value==null) {
