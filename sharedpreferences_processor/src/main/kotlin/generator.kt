@@ -21,7 +21,7 @@ fun Interface.generateImplementation(): String {
 
         if(!it.nullable && it.value==null) throw IllegalArgumentException("${it.name} should be nullable because hasn't @Default")
 
-        sb.append("\toverride var ${it.name}: $type?\n")
+        sb.append("\toverride var ${it.name}: $type\n")
         sb.append("\t\tget() = prefs.get${it.type}($prefName, ${it.default})\n")
         sb.append("\t\tset(value) = if(value == null) prefs.edit().remove($prefName).apply() else prefs.edit().put${it.type}($prefName, value).apply()\n")
     }
